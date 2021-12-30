@@ -20,3 +20,60 @@ fun onUiThread(callback: () -> Unit) {
         callback()
     }
 }
+fun WebView.playPauseVideo() {
+    onUiThread {
+        this.evaluateJavascript(
+            """document.getElementsByClassName('player-control-play-pause-icon')[0].click()""",
+            null
+        )
+    }
+}
+
+fun WebView.previousVideo() {
+    onUiThread {
+        this.evaluateJavascript(
+            """document.getElementsByClassName('player-controls-middle center')[0].children[0].click()""",
+            null
+        )
+    }
+}
+
+fun WebView.nextVideo() {
+    onUiThread {
+        this.evaluateJavascript(
+            """document.getElementsByClassName('player-controls-middle center')[0].children[4].click()""",
+            null
+        )
+    }
+}
+
+fun WebView.isNextDisable(listener: ValueCallback<Boolean>) {
+    onUiThread {
+        this.evaluateJavascript(
+            """(function() { var element = document.getElementsByClassName('player-controls-middle center')[0].children[0]; return element.className.includes('icon-disable'); })();""",
+        ){ isDisable ->
+            listener.onReceiveValue(isDisable != "null" && isDisable == "true")
+        }
+    }
+}
+
+fun WebView.isPreviousDisable(listener: ValueCallback<Boolean>) {
+    onUiThread {
+        this.evaluateJavascript(
+            """(function() { var element = document.getElementsByClassName('player-controls-middle center')[0].children[4]; return element.className.includes('icon-disable'); })();""",
+        ){ isDisable ->
+            listener.onReceiveValue(isDisable != "null" && isDisable == "true")
+        }
+    }
+}
+
+fun WebView.isHome(listener: ValueCallback<Boolean>) {
+    //getElementsByClassName better than querySelector(sometime not work)
+    onUiThread {
+        this.evaluateJavascript(
+            """(function() {var element = document.getElementsByClassName('pivot-bar-item-tab').length; return element > 0})();"""
+        ) { isHome ->
+            listener.onReceiveValue(isHome.toBoolean())
+        }
+    }
+}
